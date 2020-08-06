@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.DiaryMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.Diary">
+        <id property="diaryId" column="diary_id" jdbcType="INTEGER"/>
+        <result property="diaryContent" column="diary_content" jdbcType="VARCHAR"/>
+        <result property="diaryCreateTime" column="diary_create_time" jdbcType="TIMESTAMP"/>
+        <result property="diaryUserId" column="diary_user_id" jdbcType="INTEGER"/>
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <select id="findAllDiary" resultMap="BaseResultMap">
+        select * from diary order by diary_create_time
+    </select>
+    <insert id="insertDiary" parameterType="string">
+        insert  into diary(diary_content,diary_create_time,diary_user_id)values (#{diary},now(),0)
+    </insert>
+</mapper>

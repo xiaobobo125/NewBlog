@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.TagMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.Tag">
+        <id column="tag_id" property="tagId" jdbcType="INTEGER" />
+        <result column="tag_name" property="tagName" jdbcType="VARCHAR" />
+        <result column="tag_description" property="tagDescription" jdbcType="VARCHAR" />
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <sql id="BaseColumn">
+        tag.tag_id,tag_name,tag_description
+    </sql>
+    <select id="findTagByArticleId" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumn"/>
+        FROM tag JOIN article_tag_ref ON article_tag_ref.article_id = #{articleId} WHERE tag.tag_id = article_tag_ref.tag_id
+    </select>
+    <select id="findAllTag" resultMap="BaseResultMap">
+        select <include refid="BaseColumn"/> from tag
+    </select>
+    <delete id="deleteArticleTagRef" parameterType="Int">
+        delete from article_tag_ref where tag_id=#{tagId} and article_id=#{articleId}
+    </delete>
+    <insert id="insertArticleTagRef" parameterType="int">
+        insert into article_tag_ref (tag_id,article_id) values (#{tagId},#{articleId})
+    </insert>
+    <select id="findTagCountArticle" parameterType="int" resultType="int">
+        SELECT
+        count(*)
+        FROM article
+        JOIN article_tag_ref ON article_tag_ref.article_id = article.article_id
+        WHERE article_tag_ref.tag_id = #{tagId}
+    </select>
+    <insert id="insertTag" parameterType="com.bolife.blog.entity.Tag">
+        insert into tag(tag_name,tag_description)
+        values (#{tag.tagName},#{tag.tagDescription})
+    </insert>
+    <delete id="deleteTag" parameterType="int">
+        delete from tag where tag_id=#{id}
+    </delete>
+    <select id="findTagById" parameterType="int" resultMap="BaseResultMap">
+        select <include refid="BaseColumn"/> from tag where tag_id = #{id}
+    </select>
+    <update id="updateTag" parameterType="com.bolife.blog.entity.Tag">
+        update tag set tag_name=#{tag.tagName},tag_description=#{tag.tagDescription} where tag_id = #{tag.tagId}
+    </update>
+</mapper>

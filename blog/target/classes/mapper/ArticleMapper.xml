@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.ArticleMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.Article">
+        <id column="article_id" property="articleId" jdbcType="INTEGER"/>
+        <result column="article_user_id" property="articleUserId" jdbcType="INTEGER"/>
+        <result column="article_title" property="articleTitle" jdbcType="VARCHAR"/>
+        <result column="article_img" property="articleImg" jdbcType="VARCHAR"/>
+        <result column="article_content" property="articleContent" jdbcType="LONGVARCHAR"/>
+        <result column="article_summary" property="articleSummary" jdbcType="VARCHAR"/>
+        <result column="article_view_count" property="articleViewCount" jdbcType="INTEGER"/>
+        <result column="article_comment_count" property="articleCommentCount" jdbcType="INTEGER"/>
+        <result column="article_like_count" property="articleLikeCount" jdbcType="INTEGER"/>
+        <result column="article_order" property="articleOrder" jdbcType="INTEGER"/>
+        <result column="article_create_time" property="articleCreateTime" jdbcType="TIMESTAMP"/>
+        <result column="article_update_time" property="articleUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="article_status" property="articleStatus" jdbcType="INTEGER"/>
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <sql id="BaseSqlColumn">
+        article.article_id,article_user_id,article_title,article_img,article_content,article_summary,article_view_count,article_comment_count,article_like_count,
+        article_order,article_create_time,article_update_time,article_status
+    </sql>
+    <select id="findHotArticle" resultMap="BaseResultMap">
+        select
+        <include refid="BaseSqlColumn"/>
+        from article order by article_view_count desc
+        <if test="count!=null">
+            limit #{count}
+        </if>
+    </select>
+    <select id="findAllArticle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseSqlColumn"/>
+        FROM article
+        WHERE article_status != 0
+        ORDER BY article_order DESC, article_create_time DESC
+        <if test="pageNum != null and pageSize != null">
+            limit #{pageNum},#{pageSize}
+        </if>
+    </select>
+    <select id="findArticleCountByShow" resultType="Integer">
+        select count(*) from article
+    </select>
+    <select id="fingReTopArticle" resultMap="BaseResultMap">
+        select
+        <include refid="BaseSqlColumn"/>
+         from article where article_order=1000 ORDER BY article_create_time DESC
+        <if test="count != null">limit #{count}</if>
+    </select>
+    <select id="findArticleById" resultMap="BaseResultMap">
+        select
+        <include refid="BaseSqlColumn"/>
+        from article where article_id=#{id}
+    </select>
+    <select id="findArticlesByTagId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseSqlColumn"/>
+        FROM article
+        JOIN article_tag_ref ON article_tag_ref.article_id = article.article_id
+        WHERE article_tag_ref.tag_id = #{id}
+        limit #{count}
+    </select>
+    <select id="findAllArticlesByTagId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseSqlColumn"/>
+        FROM article
+JOIN article_tag_ref ON article_tag_ref.article_id = article.`article_id`
+WHERE article_tag_ref.tag_id = #{id}
+limit #{pageNum},#{pageSize}
+    </select>
+    <select id="findAllArticlesByTagIdCount" resultType="int">
+        SELECT count(*) FROM article
+        JOIN article_tag_ref ON article_tag_ref.article_id = article.`article_id`
+        WHERE article_tag_ref.tag_id = #{id}
+    </select>
+
+    <delete id="deleteArticle" parameterType="int">
+        delete from article where article_id=#{id}
+    </delete>
+
+    <select id="randomArticles" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseSqlColumn"/>
+        FROM article WHERE 1 ORDER BY RAND() LIMIT #{count}
+    </select>
+    <update id="updateArticle" parameterType="com.bolife.blog.entity.Article">
+        update article
+        <set>
+            <if test="article.articleUserId != null">article_user_id = #{article.articleUserId,jdbcType=INTEGER},</if>
+            <if test="article.articleTitle != null">article_title = #{article.articleTitle,jdbcType=VARCHAR},</if>
+            <if test="article.articleViewCount != null">article_view_count = #{article.articleViewCount,jdbcType=INTEGER},</if>
+            <if test="article.articleCommentCount != null">article_comment_count = #{article.articleCommentCount,jdbcType=INTEGER},</if>
+            <if test="article.articleLikeCount != null">article_like_count = #{article.articleLikeCount,jdbcType=INTEGER},</if>
+            <if test="article.articleCreateTime != null">article_create_time = #{article.articleCreateTime,jdbcType=TIMESTAMP},</if>
+            <if test="article.articleUpdateTime != null">article_update_time = now(),</if>
+            <if test="article.articleIsComment != null">article_is_comment = #{article.articleIsComment,jdbcType=INTEGER},</if>
+            <if test="article.articleStatus != null">article_status = #{article.articleStatus,jdbcType=INTEGER},</if>
+            <if test="article.articleOrder != null">article_order = #{article.articleOrder,jdbcType=INTEGER},</if>
+            <if test="article.articleContent != null">article_content = #{article.articleContent,jdbcType=LONGVARCHAR},</if>
+            <if test="article.articleSummary != null">article_summary = #{article.articleSummary,jdbcType=VARCHAR},</if>
+            <if test="article.articleImg != null">article_img = #{article.articleImg,jdbcType=VARCHAR},</if>
+        </set>
+        where article_id = #{article.articleId,jdbcType=INTEGER}
+    </update>
+    <insert id="insertArticle" parameterType="com.bolife.blog.entity.Article" useGeneratedKeys="true"
+            keyProperty="articleId">
+        INSERT INTO
+        article(article_user_id, article_title,
+        article_view_count, article_comment_count,
+        article_like_count, article_create_time, article_update_time, article_status, article_order,
+        article_content, article_summary,article_img)
+        VALUES (#{article.articleUserId,jdbcType=INTEGER},
+        #{article.articleTitle,jdbcType=VARCHAR},
+        #{article.articleViewCount,jdbcType=INTEGER},
+        #{article.articleCommentCount,jdbcType=INTEGER},
+        #{article.articleLikeCount,jdbcType=INTEGER},
+        #{article.articleCreateTime,jdbcType=TIMESTAMP},
+        #{article.articleUpdateTime,jdbcType=TIMESTAMP},
+        #{article.articleStatus,jdbcType=INTEGER},
+        #{article.articleOrder,jdbcType=INTEGER},
+        #{article.articleContent,jdbcType=LONGVARCHAR},
+        #{article.articleSummary,jdbcType=VARCHAR},
+        #{article.articleImg,jdbcType=VARCHAR})
+    </insert>
+    <select id="findNearArticles" resultMap="BaseResultMap">
+        select
+        <include refid="BaseSqlColumn"/>
+        from article
+        ORDER BY article_create_time desc
+        <if test="count != null">
+            limit #{count}
+        </if>
+    </select>
+</mapper>

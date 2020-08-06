@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.OptionsMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.Options">
+        <id column="option_id" property="optionId" jdbcType="INTEGER"/>
+        <result column="option_site_title" property="optionSiteTitle" jdbcType="VARCHAR"/>
+        <result column="option_site_descrption" property="optionSiteDescrption" jdbcType="VARCHAR"/>
+        <result column="option_meta_descrption" property="optionMetaDescrption" jdbcType="VARCHAR"/>
+        <result column="option_meta_keyword" property="optionMetaKeyword" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_avatar" property="optionAboutsiteAvatar" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_title" property="optionAboutsiteTitle" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_content" property="optionAboutsiteContent" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_wechat" property="optionAboutsiteWechat" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_qq" property="optionAboutsiteQq" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_github" property="optionAboutsiteGithub" jdbcType="VARCHAR"/>
+        <result column="option_aboutsite_weibo" property="optionAboutsiteWeibo" jdbcType="VARCHAR"/>
+        <result column="option_view_total" property="optionViewTotal" jdbcType="VARCHAR"/>
+        <result column="option_status" property="optionStatus" jdbcType="INTEGER"/>
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <sql id="Base_Column_List">
+        option_id, option_site_title, option_site_descrption, option_meta_descrption, option_meta_keyword,
+        option_aboutsite_avatar, option_aboutsite_title, option_aboutsite_content, option_aboutsite_wechat,
+        option_aboutsite_qq, option_aboutsite_github, option_aboutsite_weibo, option_view_total,
+        option_status
+    </sql>
+    <select id="findOptions" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from options
+    </select>
+    <update id="updateOptions" parameterType="com.bolife.blog.entity.Options">
+        update
+        options
+        <set>
+            <if test="options.optionSiteTitle != null">option_site_title = #{options.optionSiteTitle,jdbcType=VARCHAR},</if>
+            <if test="options.optionSiteDescrption != null">option_site_descrption = #{options.optionSiteDescrption,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionMetaDescrption != null">option_meta_descrption = #{options.optionMetaDescrption,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionMetaKeyword != null">option_meta_keyword = #{options.optionMetaKeyword,jdbcType=VARCHAR},</if>
+            <if test="options.optionAboutsiteAvatar != null">option_aboutsite_avatar =
+                #{options.optionAboutsiteAvatar,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionAboutsiteTitle != null">option_aboutsite_title = #{options.optionAboutsiteTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionAboutsiteContent != null">option_aboutsite_content =
+                #{options.optionAboutsiteContent,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionAboutsiteWechat != null">option_aboutsite_wechat =
+                #{options.optionAboutsiteWechat,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionAboutsiteQq != null">option_aboutsite_qq = #{options.optionAboutsiteQq,jdbcType=VARCHAR},</if>
+            <if test="options.optionAboutsiteGithub != null">option_aboutsite_github =
+                #{options.optionAboutsiteGithub,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionAboutsiteWeibo != null">option_aboutsite_weibo = #{options.optionAboutsiteWeibo,jdbcType=VARCHAR},
+            </if>
+            <if test="options.optionViewTotal != null">option_view_total = #{options.optionViewTotal,jdbcType=VARCHAR},</if>
+            <if test="options.optionStatus != null">option_status = #{options.optionStatus,jdbcType=INTEGER}</if>
+        </set>
+        where option_id = #{options.optionId,jdbcType=INTEGER}
+    </update>
+</mapper>

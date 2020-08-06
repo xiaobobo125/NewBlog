@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.LinkMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.Link">
+        <result column="link_id" property="linkId" jdbcType="INTEGER"></result>
+        <result column="link_url" property="linkUrl" jdbcType="VARCHAR"></result>
+        <result column="link_name" property="linkName" jdbcType="VARCHAR"></result>
+        <result column="link_image" property="linkImage" jdbcType="VARCHAR"></result>
+        <result column="link_description" property="linkDescription" jdbcType="VARCHAR"></result>
+        <result column="link_create_time" property="linkCreateTime" jdbcType="TIMESTAMP"></result>
+        <result column="link_order" property="linkOrder" jdbcType="INTEGER"></result>
+        <result column="link_status" property="linkStatus" jdbcType="INTEGER"></result>
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <sql id="BaseColumn">
+        link_id,link_url,link_name,link_image,link_description,link_create_time,link_order,link_status
+    </sql>
+    <select id="findAllLink" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from link order by link_order desc
+    </select>
+
+    <select id="findLinkById" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from link where link_id = #{id}
+    </select>
+    <update id="updateLink" parameterType="com.bolife.blog.entity.Link">
+        update link
+        <set >
+            <if test="link.linkUrl != null" > link_url = #{link.linkUrl,jdbcType=VARCHAR},</if>
+            <if test="link.linkName != null" >link_name = #{link.linkName,jdbcType=VARCHAR},</if>
+            <if test="link.linkImage != null" >link_image = #{link.linkImage,jdbcType=VARCHAR},</if>
+            <if test="link.linkDescription != null" >link_description = #{link.linkDescription,jdbcType=VARCHAR},</if>
+            <if test="link.linkCreateTime != null" >link_create_time = #{link.linkCreateTime,jdbcType=TIMESTAMP},</if>
+            <if test="link.linkOrder != null" >link_order = #{link.linkOrder,jdbcType=INTEGER}, </if>
+            <if test="link.linkStatus != null" >link_status = #{link.linkStatus,jdbcType=INTEGER},</if>
+        </set>
+        where link_id = #{link.linkId,jdbcType=INTEGER}
+    </update>
+    <delete id="deleteLink" parameterType="int">
+        delete from link where link_id = #{id}
+    </delete>
+    <insert id="insertLink" parameterType="com.bolife.blog.entity.Link">
+        insert into link(link_url,link_name,link_image,link_description,link_create_time,link_order,link_status)
+        values (#{link.linkUrl,jdbcType=VARCHAR}, #{link.linkName,jdbcType=VARCHAR},
+        #{link.linkImage,jdbcType=VARCHAR}, #{link.linkDescription,jdbcType=VARCHAR},#{link.linkCreateTime,jdbcType=TIMESTAMP},
+        #{link.linkOrder,jdbcType=INTEGER}, #{link.linkStatus,jdbcType=INTEGER})
+    </insert>
+</mapper>

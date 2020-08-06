@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.Comment">
+        <id column="comment_id" property="commentId" jdbcType="INTEGER"/>
+        <result column="comment_pid" property="commentPid" jdbcType="INTEGER"/>
+        <result column="comment_user_id" property="commentUserId" jdbcType="INTEGER"/>
+        <result column="comment_pname" property="commentPname" jdbcType="VARCHAR"/>
+        <result column="comment_article_id" property="commentArticleId" jdbcType="INTEGER"/>
+        <result column="comment_content" property="commentContent" jdbcType="VARCHAR"/>
+        <result column="comment_create_time" property="commentCreateTime" jdbcType="TIMESTAMP"/>
+        <result column="comment_role" property="commentRole" jdbcType="INTEGER"/>
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <sql id="BaseColumn">
+        comment_id,comment_pid,comment_user_id,comment_pname,comment_article_id,comment_content,comment_create_time,comment_role
+    </sql>
+    <select id="findCommentByArticleId" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from comment where comment_article_id=#{id} order by comment_create_time desc
+    </select>
+    <insert id="insertComment" parameterType="com.bolife.blog.entity.Comment">
+        insert into comment(comment_pid,comment_user_id,comment_pname,comment_article_id,comment_content,comment_create_time,comment_role)
+        values (#{comment.commentPid},#{comment.commentUserId},#{comment.commentPname},#{comment.commentArticleId},#{comment.commentContent},now(),#{comment.commentRole})
+    </insert>
+    <delete id="deleteComment" parameterType="int">
+        delete from comment where comment_id=#{id}
+    </delete>
+    <select id="findComment" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from comment order by comment_create_time desc
+        <if test="count != null">
+            limit #{count}
+        </if>
+    </select>
+    <select id="findAllComment" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from comment
+        order by comment_create_time desc
+        <if test="pageNum != null and pageSize != null">
+            limit #{pageNum},#{pageSize}
+        </if>
+    </select>
+    <select id="findCommentCount" resultType="Int">
+        select count(*) from comment
+    </select>
+    <select id="findCommentById" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from comment
+    </select>
+</mapper>

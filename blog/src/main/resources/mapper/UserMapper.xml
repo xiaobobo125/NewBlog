@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bolife.blog.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.bolife.blog.entity.User">
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="user_pass" property="userPass" jdbcType="VARCHAR"/>
+        <result column="user_nickname" property="userNickname" jdbcType="VARCHAR"/>
+        <result column="user_email" property="userEmail" jdbcType="VARCHAR"/>
+        <result column="user_url" property="userUrl" jdbcType="VARCHAR"/>
+        <result column="user_avatar" property="userAvatar" jdbcType="VARCHAR"/>
+        <result column="user_last_login_ip" property="userLastLoginIp" jdbcType="VARCHAR"/>
+        <result column="user_register_time" property="userRegisterTime" jdbcType="TIMESTAMP"/>
+        <result column="user_last_login_time" property="userLastLoginTime" jdbcType="TIMESTAMP"/>
+        <result column="user_status" property="userStatus" jdbcType="INTEGER"/>
+    </resultMap>
+    <cache type="com.bolife.blog.redis.RedisCache"/>
+    <sql id="Base_Column_List">
+        user_id, user_name, user_pass, user_nickname, user_email, user_avatar,
+        user_last_login_ip, user_register_time, user_last_login_time, user_status
+    </sql>
+    <select id="findUserById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user where user_id = #{id}
+    </select>
+    <select id="findAllUser" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        <if test="pageNum!=null and limit!=null">
+            limit #{pageNum},#{limit}
+        </if>
+    </select>
+    <select id="findUserCount" resultType="int">
+        select count(*) from user
+    </select>
+    <delete id="deleteUser" parameterType="int">
+        delete from user where user_id=#{id}
+    </delete>
+    <update id="updateUser" parameterType="com.bolife.blog.entity.User">
+        update
+        user
+        <set>
+            <if test="user.userName != null">user_name = #{user.userName,jdbcType=VARCHAR},</if>
+            <if test="user.userPass != null">user_pass = #{user.userPass,jdbcType=VARCHAR},</if>
+            <if test="user.userNickname != null">user_nickname = #{user.userNickname,jdbcType=VARCHAR},</if>
+            <if test="user.userEmail != null">user_email = #{user.userEmail,jdbcType=VARCHAR},</if>
+            <if test="user.userAvatar != null">user_avatar = #{user.userAvatar,jdbcType=VARCHAR},</if>
+            <if test="user.userLastLoginIp != null">user_last_login_ip = #{user.userLastLoginIp,jdbcType=VARCHAR},</if>
+            <if test="user.userRegisterTime != null">user_register_time = #{user.userRegisterTime,jdbcType=TIMESTAMP},</if>
+            <if test="user.userLastLoginTime != null">user_last_login_time = #{user.userLastLoginTime,jdbcType=TIMESTAMP},</if>
+            <if test="user.userStatus != null">user_status = #{user.userStatus,jdbcType=INTEGER},</if>
+        </set>
+        where user_id = #{user.userId,jdbcType=INTEGER}
+    </update>
+    <insert id="insert" parameterType="com.bolife.blog.entity.User" useGeneratedKeys="true" keyProperty="userId">
+        insert into
+        user
+        (user_name, user_pass,
+        user_nickname, user_email,
+        user_avatar, user_last_login_ip, user_register_time,
+        user_last_login_time, user_status)
+        values (#{user.userName,jdbcType=VARCHAR}, #{user.userPass,jdbcType=VARCHAR},
+        #{user.userNickname,jdbcType=VARCHAR}, #{user.userEmail,jdbcType=VARCHAR},
+        #{user.userAvatar,jdbcType=VARCHAR}, #{user.userLastLoginIp,jdbcType=VARCHAR}, #{user.userRegisterTime,jdbcType=TIMESTAMP},
+        #{user.userLastLoginTime,jdbcType=TIMESTAMP}, #{user.userStatus,jdbcType=INTEGER})
+    </insert>
+
+    <select id="findUserByName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        WHERE user_name = #{userName}
+    </select>
+
+    <select id="findUserByEmail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        WHERE user_email = #{email}
+    </select>
+    <select id="findUserByLastLogin" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        order by user_last_login_time desc
+        <if test="count!=null">
+            limit #{count}
+        </if>
+    </select>
+
+</mapper>
