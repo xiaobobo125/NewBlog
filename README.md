@@ -4,7 +4,7 @@
 
 ### 前端
 
-前端界面来自：https://www.yanshisan.cn/，并对其进行了一些修改优化。前端主要采用layui框架，十分优美雅观。
+前端界面来自：https://www.yanshisan.cn/ ，并对其进行了一些修改优化。前端主要采用layui框架，十分优美雅观。
 
 ### 后端
 
